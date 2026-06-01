@@ -1,0 +1,9 @@
+{
+  "name": "flutter-workshop-website",
+  "private": true,
+  "description": "TSEC Flutter Mobile App Development Workshop landing page",
+  "scripts": {
+    "build": "node build.mjs",
+    "setup:assets": "node scripts/setup-assets.mjs"
+  }
+}

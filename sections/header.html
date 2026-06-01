@@ -1,0 +1,40 @@
+<!-- Top header: logos + centered nav (single row) -->
+  <header id="top-logos" class="fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-xl border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="site-header-row">
+        <!-- Replace College Logo Here -->
+        <a href="https://www.tsecmumbai.in" target="_blank" rel="noopener" class="college-logo-wrap shrink-0" aria-label="College logo">
+          <img src="assets/logos/tsec.webp" alt="Thakur Shyamnarayan Engineering College" width="380" height="76" loading="eager" decoding="async" />
+        </a>
+        <nav class="desktop-nav" aria-label="Main navigation">
+          <a href="#about" class="nav-link">About</a>
+          <a href="#trainer" class="nav-link">Trainer</a>
+          <a href="#timeline" class="nav-link">Timeline</a>
+          <a href="#tools" class="nav-link">Tools</a>
+          <a href="#faq" class="nav-link">FAQ</a>
+          <a href="#register" class="nav-link text-sky-600 font-semibold">Register</a>
+        </nav>
+        <div class="header-right">
+          <button id="menu-btn" type="button" class="lg:hidden rounded-xl border border-slate-200 bg-white" aria-label="Open menu" aria-expanded="false">
+            <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <!-- Replace TPC Logo Here -->
+          <a href="#about" class="tpc-logo-wrap shrink-0" aria-label="Training and Placement Cell">
+            <img src="assets/logos/tpc.png" alt="Training & Placement Cell" width="200" height="76" loading="eager" decoding="async" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="mobile-menu" class="mobile-menu lg:hidden" aria-hidden="true">
+    <nav>
+      <a href="#about" class="nav-link mobile-nav">About</a>
+      <a href="#trainer" class="nav-link mobile-nav">Trainer</a>
+      <a href="#timeline" class="nav-link mobile-nav">Timeline</a>
+      <a href="#tools" class="nav-link mobile-nav">Tools</a>
+      <a href="#faq" class="nav-link mobile-nav">FAQ</a>
+      <a href="#register" class="nav-link text-sky-600 font-semibold mobile-nav">Register</a>
+    </nav>
+  </div>
+  <div id="menu-overlay" class="fixed inset-0 bg-slate-900/25 z-[90] hidden lg:hidden" style="top: var(--header-h);"></div>
