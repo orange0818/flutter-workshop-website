@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Student certificate portal for Flutter Workshop participants." />
+  <title>Certificate Portal | Flutter Workshop</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] },
+          colors: {
+            brand: { cyan: '#06b6d4', sky: '#0ea5e9', indigo: '#6366f1', purple: '#8b5cf6' }
+          }
+        }
+      }
+    };
+  </script>
+
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="antialiased">
+  <header id="top-logos" class="fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-xl border-b border-slate-100">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="site-header-row">
+        <a href="https://www.tsecmumbai.in" target="_blank" rel="noopener" class="college-logo-wrap shrink-0" aria-label="College logo">
+          <img src="assets/logos/tsec.webp" alt="Thakur Shyamnarayan Engineering College" width="380" height="76" loading="eager" decoding="async" />
+        </a>
+        <nav class="desktop-nav" aria-label="Main navigation">
+          <a href="index.html#about" class="nav-link">About</a>
+          <a href="index.html#trainer" class="nav-link">Trainer</a>
+          <a href="index.html#timeline" class="nav-link">Timeline</a>
+          <a href="index.html#tools" class="nav-link">Tools</a>
+          <a href="certificate.html" class="nav-link text-sky-600 font-semibold">Certificates</a>
+          <a href="index.html#faq" class="nav-link">FAQ</a>
+          <a href="index.html#register" class="nav-link text-sky-600 font-semibold">Register</a>
+        </nav>
+        <div class="header-right">
+          <button id="menu-btn" type="button" class="lg:hidden rounded-xl border border-slate-200 bg-white" aria-label="Open menu" aria-expanded="false">
+            <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <a href="index.html#about" class="tpc-logo-wrap shrink-0" aria-label="Training and Placement Cell">
+            <img src="assets/logos/tpc.png" alt="Training & Placement Cell" width="200" height="76" loading="eager" decoding="async" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div id="mobile-menu" class="mobile-menu lg:hidden" aria-hidden="true">
+    <nav>
+      <a href="index.html#about" class="nav-link mobile-nav">About</a>
+      <a href="index.html#trainer" class="nav-link mobile-nav">Trainer</a>
+      <a href="index.html#timeline" class="nav-link mobile-nav">Timeline</a>
+      <a href="index.html#tools" class="nav-link mobile-nav">Tools</a>
+      <a href="certificate.html" class="nav-link mobile-nav">Certificates</a>
+      <a href="index.html#faq" class="nav-link mobile-nav">FAQ</a>
+      <a href="index.html#register" class="nav-link text-sky-600 font-semibold mobile-nav">Register</a>
+    </nav>
+  </div>
+  <div id="menu-overlay" class="fixed inset-0 bg-slate-900/25 z-[90] hidden lg:hidden" style="top: var(--header-h);"></div>
+
+  <main class="pt-28 bg-slate-50 min-h-screen">
+    <section class="section-pad-compact bg-white">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center section-head" data-aos="fade-up">
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-3">Certificate Portal</h1>
+          <p class="text-slate-600 max-w-2xl mx-auto">Verify a certificate code or download your student certificate by selecting your name from the suggestions list.</p>
+        </div>
+
+        <div class="mt-10 grid gap-8 lg:grid-cols-[1.1fr,0.9fr]">
+          <section class="rounded-[2rem] border border-slate-200 bg-slate-50 p-6 shadow-sm" data-aos="fade-up">
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <p class="text-sm uppercase tracking-[0.24em] font-bold text-sky-600">Verify certificate</p>
+                <h2 class="text-2xl font-bold text-slate-900">Enter certificate code</h2>
+              </div>
+              <span class="inline-flex items-center rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">Code lookup</span>
+            </div>
+            <div class="space-y-4">
+              <label class="block text-sm font-semibold text-slate-700" for="certificate-code-input">Certificate code</label>
+              <input id="certificate-code-input" type="text" class="w-full rounded-3xl border border-slate-300 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-sky-400" placeholder="Enter your code" autocomplete="off" />
+              <button id="verify-certificate-btn" type="button" class="btn-primary rounded-3xl px-6 py-3 text-base font-semibold">Verify code</button>
+              <p id="certificate-code-warning" class="text-sm text-rose-600 min-h-[1.25rem]" aria-live="polite"></p>
+            </div>
+
+            <div id="certificate-preview-container" class="mt-8 hidden rounded-[1.75rem] border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <p class="text-sm font-semibold text-slate-600">Certificate found</p>
+                  <p id="certificate-preview-label" class="text-base font-bold text-slate-900"></p>
+                  <p id="certificate-eligibility-note" class="text-sm text-rose-600 mt-1"></p>
+                </div>
+                <button id="certificate-preview-close" type="button" class="text-sm font-semibold text-slate-500 hover:text-slate-900">Close</button>
+              </div>
+              <div class="rounded-3xl overflow-hidden border border-slate-200">
+                <img id="certificate-preview-image" src="" alt="Verified student certificate" class="w-full object-contain" />
+              </div>
+            </div>
+          </section>
+
+          <section class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm" data-aos="fade-up">
+            <div class="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <p class="text-sm uppercase tracking-[0.24em] font-bold text-sky-600">Download certificate</p>
+                <h2 class="text-2xl font-bold text-slate-900">Find your name</h2>
+              </div>
+              <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">Name matching</span>
+            </div>
+
+            <div class="space-y-4">
+              <label class="block text-sm font-semibold text-slate-700" for="student-name-input">Student name</label>
+              <div class="relative">
+                <input id="student-name-input" type="text" class="w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm focus:border-sky-400" placeholder="Type 2+ letters" autocomplete="off" />
+                <ul id="student-name-suggestions" class="suggestion-list absolute left-0 right-0 z-20 mt-2 max-h-72 overflow-y-auto rounded-3xl border border-slate-200 bg-white shadow-lg"></ul>
+              </div>
+              <p class="text-sm text-slate-500">Select one of the suggested names to download your exact certificate file.</p>
+              <button id="download-certificate-btn" type="button" class="btn-primary rounded-3xl px-6 py-3 text-base font-semibold opacity-50" disabled>Download certificate</button>
+              <p id="student-name-warning" class="text-sm text-rose-600 min-h-[1.25rem]" aria-live="polite"></p>
+            </div>
+
+            <div id="student-selection-note" class="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+              <strong class="font-semibold text-slate-800">Tip:</strong> The download will only proceed when the entered name exactly matches a suggested student from the list. This prevents spelling mismatch errors.
+            </div>
+          </section>
+        </div>
+
+        <div class="mt-10 rounded-[2rem] border border-slate-200 bg-slate-100 p-6 text-sm text-slate-600 shadow-sm" data-aos="fade-up">
+          <p class="font-semibold text-slate-900">How this portal works</p>
+          <ul class="mt-4 space-y-2 list-disc pl-5">
+            <li>Use the left side to check whether a certificate code is valid.</li>
+            <li>Use the right side to select your exact student name and download the certificate image.</li>
+            <li>If a certificate exists for the selected name, the download button becomes active.</li>
+            <li>If the code is invalid, the warning message will explain that the certificate was not found.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <script defer src="script.js"></script>
+</body>
+</html>
