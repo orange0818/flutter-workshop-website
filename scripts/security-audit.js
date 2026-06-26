@@ -28,7 +28,7 @@ console.log('\n' + '='.repeat(70));
 console.log('Security Audit');
 console.log('='.repeat(70) + '\n');
 
-const serverSource = read('api/server.js');
+const serverSource = read('api/index.js');
 const scriptSource = read('script.js');
 const packageJson = JSON.parse(read('package.json'));
 const blockedPathsSource = read('lib/blocked-paths.js');
@@ -36,11 +36,11 @@ const routesSource = read('lib/certificate-routes.js');
 const dataSource = read('lib/certificate-data.js');
 
 const requiredChecks = [
-  ['api/server.js uses blocked static middleware before express.static', () => {
+  ['api/index.js uses blocked static middleware before express.static', () => {
     const blockedIndex = serverSource.indexOf('isBlockedStaticPath');
     const staticIndex = serverSource.indexOf('express.static');
     if (blockedIndex < 0 || staticIndex < 0 || blockedIndex > staticIndex) {
-      fail('api/server.js must block sensitive static paths before express.static');
+      fail('api/index.js must block sensitive static paths before express.static');
     }
   }],
   ['blocked paths include certificate images', () => {

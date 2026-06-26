@@ -3,11 +3,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/server.js"
+      "destination": "/api/index.js"
     }
   ],
   "functions": {
-    "api/server.js": {
+    "api/index.js": {
       "includeFiles": "data/**"
     }
   },
