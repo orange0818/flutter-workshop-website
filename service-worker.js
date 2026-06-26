@@ -165,17 +165,25 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Clean up old caches on activate
+// Force immediate activation on install
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
+// Clean up old caches and claim clients on activate
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      self.clients.claim(),
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      })
+    ])
   );
 });
