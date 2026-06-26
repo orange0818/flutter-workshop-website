@@ -18,8 +18,7 @@ import { createCertificateHandlers } from '../lib/certificate-routes.js';
 const app = express();
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.join(__dirname, '..');
+const projectRoot = process.cwd();
 const isVercel = Boolean(process.env.VERCEL);
 
 const isDevelopment = NODE_ENV === 'development';

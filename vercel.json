@@ -6,6 +6,11 @@
       "destination": "/api/server.js"
     }
   ],
+  "functions": {
+    "api/server.js": {
+      "includeFiles": "data/**"
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   }
