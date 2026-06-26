@@ -5,7 +5,7 @@ Generate student certificate JSON data from the text file source.
 Usage:
     python scripts/generate-certificate-data.py
 
-This script reads from 'assets/FLUTTER ELIGIBLE CANDIDATES.txt'
+This script reads from 'data/eligible-candidates.txt'
 and generates 'assets/data/student-certificates.json' with:
     - NAME → "name" field
     - Unique Code → "code" field
@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 def main():
-    text_path = Path("assets/FLUTTER ELIGIBLE CANDIDATES.txt")
+    text_path = Path("data/eligible-candidates.txt")
     output_path = Path("assets/data/student-certificates.json")
     
     if not text_path.exists():

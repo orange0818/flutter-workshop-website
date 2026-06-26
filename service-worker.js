@@ -15,7 +15,14 @@ const CERTIFICATE_API = '/api/verify-certificate';
 // Don't cache sensitive certificate files
 const NO_CACHE_PATTERNS = [
   /^.*\/assets\/certificates\//,
-  /^.*\/api\/verify-certificate/
+  /^.*\/data\//,
+  /^.*\/assets\/FLUTTER ELIGIBLE CANDIDATES\.txt$/,
+  /^.*\/assets\/candidateswhocompletedtheassignment\.txt$/,
+  /^.*\/api\/verify-certificate/,
+  /^.*\/api\/certificate-preview/,
+  /^.*\/api\/certificate-lookup/,
+  /^.*\/api\/certificate-status/,
+  /^.*\/api\/certificate-names/
 ];
 
 function shouldNotCache(url) {
@@ -43,8 +50,13 @@ self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Block direct access to certificate files
-  if (url.pathname.includes('/assets/certificates/')) {
+  // Block direct access to certificate files and eligibility data
+  if (
+    url.pathname.includes('/assets/certificates/') ||
+    url.pathname.startsWith('/data/') ||
+    url.pathname.endsWith('/assets/FLUTTER ELIGIBLE CANDIDATES.txt') ||
+    url.pathname.endsWith('/assets/candidateswhocompletedtheassignment.txt')
+  ) {
     logAccess(request, 'BLOCKED - direct_file_access');
     event.respondWith(
       new Response('Certificate access requires verification', {
@@ -60,13 +72,33 @@ self.addEventListener('fetch', event => {
   }
 
   // For certificate API requests, validate inputs and prevent caching
-  if (url.pathname === CERTIFICATE_API || url.pathname.includes('verify-certificate')) {
+  if (
+    url.pathname === CERTIFICATE_API ||
+    url.pathname.includes('verify-certificate') ||
+    url.pathname.includes('certificate-preview') ||
+    url.pathname.includes('certificate-lookup') ||
+    url.pathname.includes('certificate-status') ||
+    url.pathname.includes('certificate-names')
+  ) {
     const params = new URL(request.url).searchParams;
     const name = params.get('name');
     const code = params.get('code');
+    const query = params.get('q');
+    let invalid = false;
 
-    // Validate parameters exist and have reasonable length
-    if (!name || !code || name.length > 100 || code.length > 50) {
+    if (url.pathname.includes('certificate-names')) {
+      invalid = !query || query.length < 2 || query.length > 100;
+    } else if (url.pathname.includes('certificate-status')) {
+      invalid = !name || name.length > 100;
+    } else if (url.pathname.includes('certificate-lookup')) {
+      invalid = !code || code.length > 50;
+    } else if (url.pathname.includes('certificate-preview')) {
+      invalid = !name || name.length > 100 || (code && code.length > 50);
+    } else {
+      invalid = !name || !code || name.length > 100 || code.length > 50;
+    }
+
+    if (invalid) {
       logAccess(request, 'BLOCKED - invalid_params');
       event.respondWith(
         new Response(JSON.stringify({ error: 'Invalid parameters' }), {

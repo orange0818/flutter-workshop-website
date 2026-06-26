@@ -3,7 +3,7 @@ import csv
 
 ROOT = os.path.dirname(os.path.dirname(__file__))
 STUDENTS_DIR = os.path.join(ROOT, 'assets', 'certificates', 'student')
-DATA_FILE = os.path.join(ROOT, 'assets', 'FLUTTER ELIGIBLE CANDIDATES.txt')
+DATA_FILE = os.path.join(ROOT, 'data', 'eligible-candidates.txt')
 
 def normalize(name):
     return ''.join(c for c in name if c.isalnum() or c.isspace()).strip().lower()

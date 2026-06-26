@@ -62,7 +62,7 @@ function checkDependencies() {
     const pkgPath = path.join(root, 'package.json');
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
     
-    const required = ['express', 'compression'];
+    const required = ['express', 'compression', 'sharp'];
     const missing = required.filter(dep => !pkg.dependencies?.[dep]);
     
     if (missing.length === 0) {
@@ -81,8 +81,11 @@ function checkDependencies() {
 // Check API files
 function checkAPIFiles() {
   const files = [
-    'api/verify-certificate.js',
-    'api/audit-log.js'
+    'lib/certificate-routes.js',
+    'lib/certificate-data.js',
+    'lib/certificate-image.js',
+    'lib/blocked-paths.js',
+    'scripts/security-audit.js',
   ];
   
   let ok = true;
@@ -107,11 +110,12 @@ checkFile('.gitignore', 'Git ignore rules');
 checkDependencies();
 
 console.log('\nAssets:');
+checkDir('data', 'Server-only data directory');
 checkDir('assets', 'Assets directory');
 checkDir('assets/certificates', 'Certificates storage');
 checkDir('assets/certificates/student', 'Student certificates');
-checkFileContent('assets/FLUTTER ELIGIBLE CANDIDATES.txt', 'Eligible candidates list');
-checkFileContent('assets/candidateswhocompletedtheassignment.txt', 'Completed assignment list');
+checkFileContent('data/eligible-candidates.txt', 'Eligible candidates list');
+checkFileContent('data/completed-assignments.txt', 'Completed assignment list');
 
 console.log('\nPortal Files:');
 checkFile('certificate.html', 'Certificate portal HTML');
