@@ -121,22 +121,11 @@ self.addEventListener('fetch', event => {
     // Don't cache sensitive responses
     event.respondWith(
       fetch(request).then(response => {
-        // Only cache successful non-certificate responses
         if (response.status === 200) {
-          const clone = response.clone();
-          const headers = new Headers(clone.headers);
-          headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-          
           logAccess(request, 'ALLOWED - verified_download');
-          
-          return new Response(clone.body, {
-            status: clone.status,
-            statusText: clone.statusText,
-            headers: headers
-          });
+        } else {
+          logAccess(request, `DENIED - status_${response.status}`);
         }
-        
-        logAccess(request, `DENIED - status_${response.status}`);
         return response;
       }).catch(error => {
         logAccess(request, 'ERROR - ' + error.message);
