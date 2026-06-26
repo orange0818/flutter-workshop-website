@@ -28,7 +28,7 @@ console.log('\n' + '='.repeat(70));
 console.log('Security Audit');
 console.log('='.repeat(70) + '\n');
 
-const serverSource = read('server.js');
+const serverSource = read('api/server.js');
 const scriptSource = read('script.js');
 const packageJson = JSON.parse(read('package.json'));
 const blockedPathsSource = read('lib/blocked-paths.js');
@@ -36,11 +36,11 @@ const routesSource = read('lib/certificate-routes.js');
 const dataSource = read('lib/certificate-data.js');
 
 const requiredChecks = [
-  ['server.js uses blocked static middleware before express.static', () => {
+  ['api/server.js uses blocked static middleware before express.static', () => {
     const blockedIndex = serverSource.indexOf('isBlockedStaticPath');
     const staticIndex = serverSource.indexOf('express.static');
     if (blockedIndex < 0 || staticIndex < 0 || blockedIndex > staticIndex) {
-      fail('server.js must block sensitive static paths before express.static');
+      fail('api/server.js must block sensitive static paths before express.static');
     }
   }],
   ['blocked paths include certificate images', () => {
@@ -110,9 +110,9 @@ const requiredChecks = [
       fail('package.json build script must run scripts/security-audit.js');
     }
   }],
-  ['sharp dependency present for server-side blur', () => {
-    if (!packageJson.dependencies?.sharp) {
-      fail('package.json must include sharp dependency for server-side preview blur');
+  ['jimp dependency present for server-side blur', () => {
+    if (!packageJson.dependencies?.jimp) {
+      fail('package.json must include jimp dependency for server-side preview blur');
     }
   }],
   ['certificate library files exist', () => {
@@ -140,12 +140,12 @@ requiredChecks.forEach(([label, check]) => {
 });
 
 if (warnings.length) {
-  console.log(`\nWarnings (${warnings.length}):`);
+  console.log('\nWarnings (' + warnings.length + '):');
   warnings.forEach((message) => console.log(`  ⚠ ${message}`));
 }
 
 if (errors.length) {
-  console.log(`\nSecurity audit failed with ${errors.length} error(s):`);
+  console.log('\nSecurity audit failed with ' + errors.length + ' error(s):');
   errors.forEach((message) => console.log(`  ✗ ${message}`));
   console.log('\n' + '='.repeat(70));
   console.log('❌ Deployment blocked until security issues are resolved.');
