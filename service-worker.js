@@ -35,14 +35,23 @@ function logAccess(request, status) {
   const message = `[${timestamp}] SW: ${request.method} ${request.url} - ${status}`;
   console.log(message);
   
-  // Send to server for audit trail
-  navigator.sendBeacon('/api/audit-log', JSON.stringify({
-    timestamp,
-    method: request.method,
-    url: request.url,
-    status,
-    userAgent: navigator.userAgent
-  }));
+  // Send to server for audit trail via standard fetch
+  fetch('/api/audit-log', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      timestamp,
+      method: request.method,
+      url: request.url,
+      status,
+      userAgent: navigator.userAgent
+    }),
+    keepalive: true
+  }).catch(err => {
+    console.warn('Failed to send audit log from SW:', err);
+  });
 }
 
 // Intercept fetch requests
