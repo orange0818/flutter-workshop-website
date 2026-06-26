@@ -30,6 +30,24 @@
   <script defer src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
   <link rel="stylesheet" href="style.css" />
+  
+  <script>
+    // Disable right-click on certificate images for security
+    document.addEventListener('contextmenu', function(e) {
+      if (e.target.id && e.target.id.includes('certificate')) {
+        e.preventDefault();
+        return false;
+      }
+    }, true);
+    
+    // Prevent certificate image downloads via drag-drop
+    document.addEventListener('dragstart', function(e) {
+      if (e.target.id && e.target.id.includes('certificate')) {
+        e.preventDefault();
+        return false;
+      }
+    }, true);
+  </script>
 </head>
 <body class="antialiased">
   <header id="top-logos" class="fixed top-0 left-0 right-0 z-[100] bg-white/95 backdrop-blur-xl border-b border-slate-100">

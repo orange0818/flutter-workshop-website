@@ -1,8 +1,34 @@
 {
-  "name": "flutter-workshop-website",
+  "name": "flutter-workshop-certificate-portal",
+  "version": "1.0.0",
   "private": true,
-  "description": "TSEC Flutter Mobile App Development Workshop landing page",
+  "description": "TSEC Flutter Mobile App Development Workshop certificate portal with security verification",
+  "type": "module",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
-    "build": "node build.mjs"
-  }
+    "dev": "NODE_ENV=development node server.js",
+    "start": "NODE_ENV=production node server.js",
+    "build": "node build.mjs",
+    "test": "echo 'Add tests here'",
+    "lint": "echo 'Add linting here'",
+    "verify": "node scripts/verify-setup.js"
+  },
+  "keywords": [
+    "certificate",
+    "portal",
+    "flutter",
+    "workshop",
+    "security",
+    "verification"
+  ],
+  "author": "TSEC Training & Placement Cell",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {}
 }

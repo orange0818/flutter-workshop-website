@@ -152,6 +152,13 @@ if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined' && useHe
 
 window.addEventListener('load', setHeaderHeight);
 
+// Register service worker for certificate security
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js', { scope: '/' }).catch(err => {
+    console.warn('Service worker registration failed:', err);
+  });
+}
+
 async function initCertificatePage() {
   try {
     const [resp, eligResp] = await Promise.all([
@@ -259,9 +266,7 @@ async function initCertificatePage() {
 
     const renderBlurredPreview = async (student) => {
       try {
-        const res = await fetch(student.file);
-        if (!res.ok) throw new Error('image fetch failed');
-        const blob = await res.blob();
+        const blob = await fetchCertificate(student);
         const img = await createImageBitmap(blob);
         const width = img.width;
         const height = img.height;
@@ -322,6 +327,37 @@ async function initCertificatePage() {
     previewImage.addEventListener('contextmenu', (e) => e.preventDefault());
     const redactCode = (code) => String(code || '').replace(/[^\s-]/g, '•');
 
+    // Fetch certificate from verified API endpoint only (strict security)
+    const fetchCertificate = async (student) => {
+      const apiUrl = new URL('/api/verify-certificate', window.location.origin);
+      apiUrl.searchParams.set('name', student.name);
+      apiUrl.searchParams.set('code', student.code);
+      
+      try {
+        const res = await fetch(apiUrl.toString(), {
+          method: 'GET',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          },
+          credentials: 'same-origin'
+        });
+        
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || `Verification failed: ${res.statusText}`);
+        }
+        
+        return res.blob();
+      } catch (error) {
+        // Provide helpful error messages
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          throw new Error('API endpoint not available. Please ensure the server is running on http://localhost:3000 or the website is deployed.');
+        }
+        throw error;
+      }
+    };
+
     const renderPreview = async (student, eligible, showCode = true) => {
       if (!student) return;
       const codeText = showCode ? student.code : redactCode(student.code);
@@ -330,11 +366,20 @@ async function initCertificatePage() {
       if (eligible) {
         codeWarning.textContent = '';
         if (eligibilityNote) eligibilityNote.textContent = '';
-        previewImage.src = student.file;
-        previewImage.alt = `${student.name} certificate preview`;
-        previewImage.draggable = false;
-        previewContainer.classList.remove('hidden');
-        updateDownloadState();
+        
+        try {
+          const blob = await fetchCertificate(student);
+          const blobUrl = URL.createObjectURL(blob);
+          previewImage.src = blobUrl;
+          previewImage.alt = `${student.name} certificate preview`;
+          previewImage.draggable = false;
+          previewContainer.classList.remove('hidden');
+          updateDownloadState();
+        } catch (error) {
+          console.error('Failed to load certificate preview:', error);
+          previewImage.alt = 'Failed to load certificate';
+          codeWarning.textContent = 'Could not load certificate preview: ' + error.message;
+        }
       } else {
         if (eligibilityNote) eligibilityNote.textContent = 'You have not completed required assignment or attendance threshold — download locked.';
         previewImage.src = '';
@@ -380,13 +425,26 @@ async function initCertificatePage() {
         return;
       }
       nameWarning.textContent = '';
-      const anchor = document.createElement('a');
-      anchor.href = selectedStudent.file;
-      anchor.download = selectedStudent.name.replace(/\s+/g, '_') + '_certificate.png';
-      anchor.target = '_blank';
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
+      
+      // Use verified API endpoint - no fallback
+      fetchCertificate(selectedStudent)
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          const anchor = document.createElement('a');
+          anchor.href = blobUrl;
+          anchor.download = selectedStudent.name.replace(/\s+/g, '_') + '_certificate.png';
+          anchor.setAttribute('data-security', 'verified');
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);
+          
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+          nameWarning.textContent = '';
+        })
+        .catch(error => {
+          console.error('Certificate download failed:', error);
+          nameWarning.textContent = 'Download failed: ' + error.message;
+        });
     });
 
     verifyButton.addEventListener('click', async () => {
