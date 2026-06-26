@@ -223,13 +223,13 @@ async function initCertificatePage() {
       previewContainer.classList.remove('hidden');
     };
 
-    const fetchPreview = async ({ name, code }) => {
-      const res = await apiFetch('/api/certificate-preview', { name, code });
+    const fetchPreview = async ({ name }) => {
+      const res = await apiFetch('/api/certificate-preview', { name });
       return res.blob();
     };
 
-    const fetchDownload = async ({ name, code }) => {
-      const res = await apiFetch('/api/verify-certificate', { name, code });
+    const fetchDownload = async ({ name }) => {
+      const res = await apiFetch('/api/verify-certificate', { name });
       return res.blob();
     };
 
@@ -252,8 +252,7 @@ async function initCertificatePage() {
     const updateDownloadState = () => {
       const enabled = Boolean(
         selectedStudent &&
-        selectedStatus?.assignmentCompleted &&
-        normalizeText(codeInput?.value)
+        selectedStatus?.assignmentCompleted
       );
       downloadButton.disabled = !enabled;
       downloadButton.classList.toggle('opacity-50', !enabled);
@@ -329,24 +328,12 @@ async function initCertificatePage() {
         return;
       }
 
-      if (!normalizeText(code)) {
-        if (eligibilityNote) {
-          eligibilityNote.textContent = 'Enter your certificate code to unlock preview and download.';
-        }
-        revokePreviewUrl();
-        previewImage.src = '';
-        previewImage.alt = `${name} certificate preview (code required)`;
-        previewContainer.classList.remove('hidden');
-        updateDownloadState();
-        return;
-      }
-
       if (eligibilityNote) eligibilityNote.textContent = '';
       codeWarning.textContent = '';
       nameWarning.textContent = '';
 
       try {
-        const blob = await fetchPreview({ name, code });
+        const blob = await fetchPreview({ name });
         setPreviewImageFromBlob(blob, `${name} certificate preview`);
         updateDownloadState();
       } catch (error) {
@@ -412,12 +399,6 @@ async function initCertificatePage() {
         return;
       }
 
-      const code = normalizeText(codeInput?.value);
-      if (!code) {
-        nameWarning.textContent = 'Please enter your certificate code before downloading.';
-        return;
-      }
-
       if (!selectedStatus?.assignmentCompleted) {
         nameWarning.textContent = 'Assignment not completed. Certificate download is locked.';
         return;
@@ -425,7 +406,7 @@ async function initCertificatePage() {
 
       nameWarning.textContent = '';
 
-      fetchDownload({ name: selectedStudent.name, code })
+      fetchDownload({ name: selectedStudent.name })
         .then((blob) => {
           const blobUrl = URL.createObjectURL(blob);
           const anchor = document.createElement('a');

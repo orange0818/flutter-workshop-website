@@ -62,7 +62,7 @@ function checkDependencies() {
     const pkgPath = path.join(root, 'package.json');
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
     
-    const required = ['express', 'compression', 'sharp'];
+    const required = ['express', 'compression', 'jimp'];
     const missing = required.filter(dep => !pkg.dependencies?.[dep]);
     
     if (missing.length === 0) {
@@ -103,7 +103,7 @@ console.log('='.repeat(70) + '\n');
 
 // Core server files
 console.log('Core Files:');
-checkFile('server.js', 'Express server');
+checkFile('api/index.js', 'Express server');
 checkFile('service-worker.js', 'Service worker');
 checkFile('package.json', 'Package configuration');
 checkFile('.gitignore', 'Git ignore rules');
