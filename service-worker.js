@@ -9,7 +9,7 @@
  * 4. Prevention of direct file access circumvention
  */
 
-const CACHE_NAME = 'certificate-portal-v1';
+const CACHE_NAME = 'certificate-portal-v2';
 const CERTIFICATE_API = '/api/verify-certificate';
 
 // Don't cache sensitive certificate files
@@ -104,7 +104,7 @@ self.addEventListener('fetch', event => {
     } else if (url.pathname.includes('certificate-preview')) {
       invalid = !name || name.length > 100 || (code && code.length > 50);
     } else {
-      invalid = !name || !code || name.length > 100 || code.length > 50;
+      invalid = !name || name.length > 100;
     }
 
     if (invalid) {
