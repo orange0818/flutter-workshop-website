@@ -63,22 +63,6 @@ const requiredChecks = [
     if (!dataSource.includes("data/eligible-candidates.txt")) {
       fail('lib/certificate-data.js must load candidates from data/eligible-candidates.txt');
     }
-    if (!dataSource.includes("data/completed-assignments.txt")) {
-      fail('lib/certificate-data.js must load completions from data/completed-assignments.txt');
-    }
-  }],
-  ['download route enforces assignment completion', () => {
-    if (!routesSource.includes('hasCompletedAssignment')) {
-      fail('Download handler must check assignment completion server-side');
-    }
-    if (!routesSource.includes('assignment_incomplete')) {
-      fail('Download handler must reject incomplete assignments');
-    }
-  }],
-  ['preview route serves blurred image server-side', () => {
-    if (!routesSource.includes('createBlurredPreview')) {
-      fail('Preview handler must blur certificates server-side for incomplete assignments');
-    }
   }],
   ['client does not fetch eligibility text files', () => {
     if (/fetch\(['"]assets\/FLUTTER ELIGIBLE CANDIDATES\.txt['"]\)/.test(scriptSource)) {
@@ -110,11 +94,7 @@ const requiredChecks = [
       fail('package.json build script must run scripts/security-audit.js');
     }
   }],
-  ['jimp dependency present for server-side blur', () => {
-    if (!packageJson.dependencies?.jimp) {
-      fail('package.json must include jimp dependency for server-side preview blur');
-    }
-  }],
+
   ['certificate library files exist', () => {
     [
       'lib/blocked-paths.js',

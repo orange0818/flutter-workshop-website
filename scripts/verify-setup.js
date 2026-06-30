@@ -62,7 +62,7 @@ function checkDependencies() {
     const pkgPath = path.join(root, 'package.json');
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
     
-    const required = ['express', 'compression', 'jimp'];
+    const required = ['express', 'compression'];
     const missing = required.filter(dep => !pkg.dependencies?.[dep]);
     
     if (missing.length === 0) {
@@ -115,7 +115,6 @@ checkDir('assets', 'Assets directory');
 checkDir('assets/certificates', 'Certificates storage');
 checkDir('assets/certificates/student', 'Student certificates');
 checkFileContent('data/eligible-candidates.txt', 'Eligible candidates list');
-checkFileContent('data/completed-assignments.txt', 'Completed assignment list');
 
 console.log('\nPortal Files:');
 checkFile('certificate.html', 'Certificate portal HTML');
@@ -124,11 +123,6 @@ checkFile('style.css', 'Portal styles');
 
 console.log('\nAPI Endpoints:');
 checkAPIFiles();
-
-console.log('\nDocumentation:');
-checkFile('SECURITY_IMPLEMENTATION.md', 'Security documentation');
-checkFile('DEPLOYMENT_CHECKLIST.md', 'Deployment checklist');
-checkFile('TESTING_DEPLOYMENT.md', 'Testing & deployment guide');
 
 console.log('\n' + '='.repeat(70));
 

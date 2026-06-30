@@ -165,22 +165,18 @@ async function initCertificatePage() {
     const suggestions = document.getElementById('student-name-suggestions');
     const downloadButton = document.getElementById('download-certificate-btn');
     const nameWarning = document.getElementById('student-name-warning');
-    const codeInput = document.getElementById('certificate-code-input');
     const verifyButton = document.getElementById('verify-certificate-btn');
-    const codeWarning = document.getElementById('certificate-code-warning');
     const previewContainer = document.getElementById('certificate-preview-container');
     const previewImage = document.getElementById('certificate-preview-image');
     const previewLabel = document.getElementById('certificate-preview-label');
     const previewClose = document.getElementById('certificate-preview-close');
-    const eligibilityNote = document.getElementById('certificate-eligibility-note');
 
     if (!nameInput || !suggestions || !downloadButton || !verifyButton) return;
 
     let selectedStudent = null;
-    let selectedStatus = null;
     let previewObjectUrl = null;
 
-    const normalizeText = (value) => String(value || '').trim().toLowerCase();
+    const normalizeText = (value) => String(value || '').trim();
 
     const apiFetch = async (apiPath, params = {}) => {
       const apiUrl = new URL(apiPath, window.location.origin);
@@ -249,18 +245,9 @@ async function initCertificatePage() {
       return Array.isArray(data.names) ? data.names : [];
     };
 
-    const updateDownloadState = () => {
-      const enabled = Boolean(
-        selectedStudent &&
-        selectedStatus?.assignmentCompleted
-      );
-      downloadButton.disabled = !enabled;
-      downloadButton.classList.toggle('opacity-50', !enabled);
-    };
-
     const renderSuggestions = async (query) => {
       suggestions.innerHTML = '';
-      const normalized = normalizeText(query);
+      const normalized = normalizeText(query).toLowerCase();
       if (normalized.length < 2) {
         suggestions.classList.remove('open');
         return;
@@ -292,54 +279,25 @@ async function initCertificatePage() {
 
     const clearSelection = () => {
       selectedStudent = null;
-      selectedStatus = null;
       revokePreviewUrl();
       previewImage.src = '';
-      updateDownloadState();
+      previewContainer.classList.add('hidden');
     };
 
     previewImage.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    const renderPreview = async ({ name, code = '', assignmentCompleted, showCode = false }) => {
+    const renderPreview = async ({ name, label }) => {
       if (!name) return;
 
-      previewLabel.textContent = showCode && code
-        ? `${name} · ${code}`
-        : name;
-
-      if (!assignmentCompleted) {
-        if (eligibilityNote) {
-          eligibilityNote.textContent =
-            'You have not completed the required assignment — preview is blurred and download is locked.';
-        }
-        codeWarning.textContent = '';
-        nameWarning.textContent = '';
-
-        try {
-          const blob = await fetchPreview({ name });
-          setPreviewImageFromBlob(blob, `${name} certificate preview (locked)`);
-        } catch (error) {
-          console.error('Failed to load blurred preview:', error);
-          codeWarning.textContent = 'Could not load certificate preview: ' + error.message;
-        }
-
-        downloadButton.disabled = true;
-        downloadButton.classList.add('opacity-50');
-        return;
-      }
-
-      if (eligibilityNote) eligibilityNote.textContent = '';
-      codeWarning.textContent = '';
+      previewLabel.textContent = label || name;
       nameWarning.textContent = '';
 
       try {
         const blob = await fetchPreview({ name });
         setPreviewImageFromBlob(blob, `${name} certificate preview`);
-        updateDownloadState();
       } catch (error) {
         console.error('Failed to load certificate preview:', error);
-        codeWarning.textContent = 'Could not load certificate preview: ' + error.message;
-        updateDownloadState();
+        nameWarning.textContent = 'Could not load certificate preview: ' + error.message;
       }
     };
 
@@ -347,18 +305,13 @@ async function initCertificatePage() {
       clearSelection();
       renderSuggestions(event.target.value);
       nameWarning.textContent = '';
-      previewContainer.classList.add('hidden');
     });
 
-    codeInput?.addEventListener('input', () => {
-      updateDownloadState();
-      if (selectedStudent?.name && selectedStatus?.assignmentCompleted) {
-        renderPreview({
-          name: selectedStudent.name,
-          code: codeInput.value,
-          assignmentCompleted: true,
-          showCode: false,
-        }).catch(() => {});
+    nameInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        suggestions.classList.remove('open');
+        triggerLookup();
       }
     });
 
@@ -373,17 +326,11 @@ async function initCertificatePage() {
       suggestions.classList.remove('open');
 
       try {
-        selectedStatus = await lookupStatusByName(name);
-        await renderPreview({
-          name,
-          code: codeInput?.value || '',
-          assignmentCompleted: selectedStatus.assignmentCompleted,
-          showCode: false,
-        });
+        const status = await lookupStatusByName(name);
+        await renderPreview({ name, label: status.name });
       } catch (error) {
         nameWarning.textContent = error.message;
         selectedStudent = null;
-        selectedStatus = null;
       }
     });
 
@@ -393,14 +340,42 @@ async function initCertificatePage() {
       }
     });
 
-    downloadButton.addEventListener('click', () => {
-      if (!selectedStudent?.name) {
-        nameWarning.textContent = 'Please select one of the name suggestions before downloading.';
+    const triggerLookup = async () => {
+      const value = normalizeText(nameInput.value);
+      if (!value) {
+        nameWarning.textContent = 'Please enter your name or certificate code.';
+        clearSelection();
         return;
       }
 
-      if (!selectedStatus?.assignmentCompleted) {
-        nameWarning.textContent = 'Assignment not completed. Certificate download is locked.';
+      nameWarning.textContent = '';
+
+      // 1. Try code lookup first
+      try {
+        const lookup = await lookupByCode(value);
+        selectedStudent = { name: lookup.name };
+        await renderPreview({ name: lookup.name, label: `${lookup.name} · ${value.toUpperCase()}` });
+        return;
+      } catch (error) {
+        console.log('Code lookup failed, trying name lookup...');
+      }
+
+      // 2. Try name lookup
+      try {
+        const status = await lookupStatusByName(value);
+        selectedStudent = { name: status.name };
+        await renderPreview({ name: status.name, label: status.name });
+      } catch (error) {
+        nameWarning.textContent = 'Certificate code or name not found. Please try again.';
+        clearSelection();
+      }
+    };
+
+    verifyButton.addEventListener('click', triggerLookup);
+
+    downloadButton.addEventListener('click', () => {
+      if (!selectedStudent?.name) {
+        nameWarning.textContent = 'Please look up a certificate first.';
         return;
       }
 
@@ -424,42 +399,13 @@ async function initCertificatePage() {
         });
     });
 
-    verifyButton.addEventListener('click', async () => {
-      const code = normalizeText(codeInput.value);
-      if (!code) {
-        codeWarning.textContent = 'Please enter your certificate code.';
-        previewContainer.classList.add('hidden');
-        return;
-      }
-
-      try {
-        const lookup = await lookupByCode(code);
-        selectedStudent = { name: lookup.name };
-        selectedStatus = lookup;
-        nameInput.value = lookup.name;
-        codeWarning.textContent = '';
-        await renderPreview({
-          name: lookup.name,
-          code,
-          assignmentCompleted: lookup.assignmentCompleted,
-          showCode: true,
-        });
-      } catch (error) {
-        codeWarning.textContent = error.message;
-        previewContainer.classList.add('hidden');
-      }
-    });
-
     previewClose?.addEventListener('click', () => {
-      previewContainer.classList.add('hidden');
-      revokePreviewUrl();
+      clearSelection();
     });
   } catch (error) {
     console.error('Certificate page initialization failed:', error);
     const nameWarning = document.getElementById('student-name-warning');
-    const codeWarning = document.getElementById('certificate-code-warning');
     if (nameWarning) nameWarning.textContent = 'Error loading certificate portal. Please refresh the page.';
-    if (codeWarning) codeWarning.textContent = 'Error loading certificate portal. Please refresh the page.';
   }
 }
 

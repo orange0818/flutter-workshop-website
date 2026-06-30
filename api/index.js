@@ -30,7 +30,6 @@ let certificateData;
 try {
   certificateData = loadCertificateData(projectRoot);
   console.log(`✓ Loaded ${certificateData.candidateCount} workshop candidates`);
-  console.log(`✓ Loaded ${certificateData.completedCount} completed assignments`);
 } catch (error) {
   console.error(`❌ ${error.message}`);
   process.exit(1);
@@ -105,7 +104,6 @@ app.get('/health', (req, res) => {
     environment: NODE_ENV,
     timestamp: new Date().toISOString(),
     candidateCount: certificateData.candidateCount,
-    completedAssignments: certificateData.completedCount,
   });
 });
 
